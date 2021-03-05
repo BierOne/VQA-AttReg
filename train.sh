@@ -1,0 +1,1 @@
+watch -g ps -opid -p 112842;nohup python main.py --gpu 1 --output updn_baseline --pattern baseline 1>cpv2_updn_baseline.log 2>&1 &
