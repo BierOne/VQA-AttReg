@@ -28,7 +28,7 @@ strong baseline LMH, our approach can achieve a new state-of-the-art accuracy.
 | UpDn | 38.88 | 40.09 |
 | UpDn + AttReg | **47.66** | **46.85** |
 
-| Model| Validation Accuracy | Test Accuracy 
+| Model| VQA-CP v1 Test Accuracy | VQA-CP v2 Test Accuracy 
 | --- | -- | -- |
 | LMH | 55.73 | 52.99 |
 | LMH + AttReg | **62.25** | **59.92** |
