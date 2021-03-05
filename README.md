@@ -16,7 +16,9 @@ strong baseline LMH, our approach can achieve a new state-of-the-art accuracy.
 | --- | -- | -- |
 | UpDn | 63.77 | 64.90 |
 | UpDn + AttReg | **64.13** | **65.25** |
-|
+
+| Model| Validation Accuracy | Test Accuracy 
+| --- | -- | -- |
 | LMH | 62.40 | -- |
 | LMH + AttReg | **62.74** | -- |
 
@@ -25,7 +27,9 @@ strong baseline LMH, our approach can achieve a new state-of-the-art accuracy.
 | --- | -- | -- |
 | UpDn | 38.88 | 40.09 |
 | UpDn + AttReg | **47.66** | **46.85** |
-|
+
+| Model| Validation Accuracy | Test Accuracy 
+| --- | -- | -- |
 | LMH | 55.73 | 52.99 |
 | LMH + AttReg | **62.25** | **59.92** |
 
