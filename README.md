@@ -1,115 +1,85 @@
-## Bottom-Up and Top-Down Attention for Visual Question Answering
+# Answer Questions with Right Image Regions: A Visual Attention Regularization Approach
 
-An efficient PyTorch implementation of the winning entry of the [2017 VQA Challenge](http://www.visualqa.org/challenge.html).
+## Introduction
+In this work, we devise a novel visual attention regularization approach,
+namely AttReg, for better visual grounding in VQA. Specifically, AttReg firstly identifies the image
+regions which are essential for question answering yet unexpectedly ignored (i.e., assigned with low attention weights) by the backbone
+model. And then a mask-guided learning scheme is leveraged to regularize the visual attention to focus more on these ignored key
+regions.
+Extensive experiments over three benchmark datasets, i.e., VQA-CP v2, VQA-CP
+v1, and VQA v2, have been conducted to evaluate the effectiveness of AttReg. As a by-product, when incorporating AttReg into the
+strong baseline LMH, our approach can achieve a new state-of-the-art accuracy.
+## Main Results
 
-The implementation follows the VQA system described in "Bottom-Up and
-Top-Down Attention for Image Captioning and Visual Question Answering"
-(https://arxiv.org/abs/1707.07998) and "Tips and Tricks for Visual
-Question Answering: Learnings from the 2017 Challenge"
-(https://arxiv.org/abs/1708.02711).
+#### The results on VQA v2
+| Model| Validation Accuracy | Test Accuracy 
+| --- | -- | -- |
+| UpDn | 63.77 | 64.90 |
+| UpDn + AttReg | **64.13** | **65.25** |
 
-## Results
+| LMH | 62.40 | -- |
+| LMH + AttReg | **62.74** | -- |
 
-| Model | Validation Accuracy | Training Time
-| --- | --- | -- |
-| Reported Model | 63.15 | 12 - 18 hours (Tesla K40) |
-| Implemented Model | **63.58** | 40 - 50 minutes (Titan Xp) |
+#### The results on VQA-CP Test
+| Model| VQA-CP v1 Test | VQA-CP v2 Test
+| --- | -- | -- |
+| UpDn | 38.88 | 40.09 |
+| UpDn + AttReg | **47.66** | **46.85** |
 
-The accuracy was calculated using the [VQA evaluation metric](http://www.visualqa.org/evaluation.html).
+| LMH | 55.73 | 52.99 |
+| LMH + AttReg | **62.25** | **59.92** |
 
-## About
+Note:
+- the training time is about 4 min per epoch (Titan Xp).
+- The accuracy was calculated using the [VQA evaluation metric](http://www.visualqa.org/evaluation.html).
+- This implementation follows my re-implementation of the VQA-UpDn model 
+(refer to "Bottom-Up and Top-Down Attention for Image Captioning and Visual Question Answering"
+, https://arxiv.org/abs/1707.07998), which is available at https://github.com/BierOne/bottom-up-attention-vqa.
 
-This is part of a project done at CMU for the course 11-777
-Advanced Multimodal Machine Learning and a joint work between Hengyuan Hu,
-Alex Xiao, and Henry Huang.
 
-As part of our project, we implemented bottom up attention as a strong VQA baseline. We were planning to integrate object
-detection with VQA and were very glad to see that Peter Anderson and
-Damien Teney et al. had already done that beautifully.
-We hope this clean and
-efficient implementation can serve as a useful baseline for future VQA
-explorations.
+## Prerequisites
+- python3.7 is suggested, though python2 is also compatible
+- pytorch (v1.4 is suggested)
+- tqdm, h5py, pickle, numpy
 
-## Implementation Details
 
-Our implementation follows the overall structure of the papers but with
-the following simplifications:
+## Preprocessing
+1. Extract pre-trained image features. (available at )
+    ```
+    python preprocess-image-rcnn.py
+    ```
+2. Preprocess questions and answers.
+    ```
+    python tools/compute_softscore.py
+    python tools/create_dictionary.py
+    ```
+3. Extract key image objects using QA explanation.
+    ```
+    python tools/create_explanation.py --exp qa
+    python tools/preprocess-hint.py --exp qa
+    ```
 
-1. We don't use extra data from [Visual Genome](http://visualgenome.org/).
-2. We use only a fixed number of objects per image (K=36).
-3. We use a simple, single stream classifier without pre-training.
-4. We use the simple ReLU activation instead of gated tanh.
-
-The first two points greatly reduce the training time. Our
-implementation takes around 200 seconds per epoch on a single Titan Xp while
-the one described in the paper takes 1 hour per epoch.
-
-The third point is simply because we feel the two stream classifier
-and pre-training in the original paper is over-complicated and not
-necessary.
-
-For the non-linear activation unit, we tried gated tanh but couldn't
-make it work. We also tried gated linear unit (GLU) and it works better than
-ReLU. Eventually we choose ReLU due to its simplicity and since the gain
-from using GLU is too small to justify the fact that GLU doubles the
-number of parameters.
-
-With these simplifications we would expect the performance to drop. For
-reference, the best result on validation set reported in the paper is
-63.15. The reported result without extra data from visual genome is
-62.48, the result using only 36 objects per image is 62.82, the result
-using two steam classifier but not pre-trained is 62.28 and the result
-using ReLU is 61.63. These numbers are cited from the Table 1 of the
-paper: "Tips and Tricks for Visual Question Answering: Learnings from
-the 2017 Challenge". With all the above simplification aggregated, our
-first implementation got around 59-60 on validation set.
-
-To shrink the gap, we added some simple but powerful
-modifications. Including:
-
-1. Add dropout to alleviate overfitting
-2. Double the number of neurons
-3. Add weight normalization (BN seems not work well here)
-4. Switch to Adamax optimizer
-5. Gradient clipping
-
-These small modifications bring the number back to ~62.80.  We further
-change the concatenation based attention module in the original paper
-to a projection based module. This new attention module is inspired by
-the paper "Modeling Relationships in Referential Expressions with
-Compositional Modular Networks"
-(https://arxiv.org/pdf/1611.09978.pdf), but with some modifications
-(implemented in attention.NewAttention).  With
-the help of this new attention, we boost the performance to ~63.58,
-surpassing the reported best result with no extra data and less
-computation cost.
-
-## Usage
-
-#### Prerequisites
-
-Make sure you are on a machine with a NVIDIA GPU and Python 2 with about 70 GB disk space.
-
-1. Install [PyTorch v0.3](http://pytorch.org/) with CUDA and Python 2.7.
-2. Install [h5py](http://docs.h5py.org/en/latest/build.html).
-
-#### Data Setup
-
-All data should be downloaded to a 'data/' directory in the root
-directory of this repository.
-
-The easiest way to download the data is to run the provided script
-`tools/download.sh` from the repository root. The features are
-provided by and downloaded from the original authors'
-[repo](https://github.com/peteanderson80/bottom-up-attention). If the
-script does not work, it should be easy to examine the script and
-modify the steps outlined in it according to your needs. Then run
-`tools/process.sh` from the repository root to process the data to the
-correct format.
-
-#### Training
-
-Simply run `python main.py` to start training. The training and
-validation scores will be printed every epoch, and the best model will
-be saved under the directory "saved_models". The default flags should
-give you the result provided in the table above.
+## Training
+1. Pre-train the baseline model. (Pls edit the utilities/config.py to change the
+baseline model)
+    ```
+    python main.py --output baseline --pattern baseline --gpu 0
+    ```
+   
+2. Fine-tune the pre-trained model with AttReg.
+    
+    - if using the UpDn as the baseline:
+        ```
+        python main.py --output baseline --gpu 0 --pattern finetune --resume --lr 2e-5 --lamda 5
+        ```
+    - if using the LMH as the baseline:
+        ```
+        python main.py --output baseline --gpu 0 --pattern finetune --resume --lr 2e-4 --lamda 0.5
+        ```
+## Citation
+    @article{VQA-AttReg,
+      title={Answer Questions with Right Image Regions: A Visual Attention Regularization Approach},
+      author={Yibing Liu, Yangyang Guo, Jianhua Yin, Xuemeng Song, Weifeng Liu, Liqiang Nie},
+      journal={arXiv preprint arXiv:2102.01916},
+      year={2021}
+    }
