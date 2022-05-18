@@ -75,9 +75,11 @@ baseline model)
         python main.py --output baseline --gpu 0 --pattern finetune --resume --lr 2e-4 --lamda 0.5
         ```
 ## Citation
-    @article{attreg,
-      title={Answer Questions with Right Image Regions: A Visual Attention Regularization Approach},
-      author={Yibing Liu, Yangyang Guo, Jianhua Yin, Xuemeng Song, Weifeng Liu, Liqiang Nie},
-      journal={ACM Transactions on Multimedia Computing, Communications, and Applications},
-      year={2021}
+    @article{AttReg,
+    author = {Liu, Yibing and Guo, Yangyang and Yin, Jianhua and Song, Xuemeng and Liu, Weifeng and Nie, Liqiang and Zhang, Min},
+    title = {Answer Questions with Right Image Regions: A Visual Attention Regularization Approach},
+    year = {2022},
+    volume = {18},
+    number = {4},
+    journal = {ACM Trans. Multimedia Comput. Commun. Appl.},
     }
